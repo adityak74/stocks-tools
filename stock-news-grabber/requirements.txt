@@ -1,0 +1,4 @@
+newsapi-python
+python-dotenv
+black
+flake8
