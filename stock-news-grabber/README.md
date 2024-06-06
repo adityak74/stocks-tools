@@ -12,4 +12,4 @@ Usage:
 make run
 ```
 
-_*NOTE:*_ The application will run every 5 seconds and will announce the stock price.
+_*NOTE:*_ The application will run the newsapi to get the news related to the query as a json file with links to articles.
