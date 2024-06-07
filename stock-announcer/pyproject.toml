@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "stock-announcer"
+version = "0.1.0"
+description = ""
+authors = ["Aditya Karnam <akarnam37@gmail.com>"]
+readme = "README.md"
+packages = [{include = "stock_announcer"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+python-dotenv = "^1.0.1"
+robin-stocks = "^3.1.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

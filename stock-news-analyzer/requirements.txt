@@ -1,0 +1,8 @@
+python-dotenv
+black
+flake8
+ollama
+langchain
+bs4
+langchain-community
+chromadb
