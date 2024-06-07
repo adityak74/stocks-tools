@@ -33,16 +33,15 @@ def get_stock_prices_formatted(stock_symbols):
     return stock_prices
 
 
-def get_stock_prices_formatted_string(stock_symbols):
-    stock_prices = get_stock_prices_formatted(stock_symbols)
+def get_stock_prices_formatted_string(stock_prices):
     stock_prices_string = ""
-    for stock_symbol, stock_price in stock_prices.items():
-        stock_prices_string += "{} {},".format(stock_symbol, stock_price)
-    return stock_prices_string
+    for stock_name, stock_price in stock_prices.items():
+        stock_prices_string += "{} {}, ".format(stock_name, stock_price)
+    return stock_prices_string.strip(", ")
 
 
-def say_stock_prices(stock_symbols):
-    stock_prices_string = get_stock_prices_formatted_string(stock_symbols)
+def say_stock_prices(stock_prices):
+    stock_prices_string = get_stock_prices_formatted_string(stock_prices)
     print(stock_prices_string)
     os.system("say {}".format(stock_prices_string))
 
@@ -52,10 +51,25 @@ def main(sleep_time_seconds):
     password = cfg["ROBINHOOD_PASSWORD"]
     rh.login(username, password)
 
+    stock_symbols = cfg["ROBINHOOD_SYMBOLS"].split(",")
+    previous_prices = {}
+
     while True:
         time.sleep(sleep_time_seconds)
-        stock_symbols = cfg["ROBINHOOD_SYMBOLS"].split(",")
-        say_stock_prices(stock_symbols)
+        current_prices = get_stock_prices_formatted(stock_symbols)
+
+        # Check if any price has changed
+        prices_changed = False
+        for stock_name, current_price in current_prices.items():
+            previous_price = previous_prices.get(stock_name)
+            if previous_price is None or previous_price != current_price:
+                prices_changed = True
+                break
+
+        # Announce prices if they have changed
+        if prices_changed:
+            say_stock_prices(current_prices)
+            previous_prices = current_prices
 
 
 if __name__ == "__main__":
