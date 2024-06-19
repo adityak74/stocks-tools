@@ -10,7 +10,14 @@ logging.basicConfig(level=logging.INFO)
 cfg = dotenv_values(".env")
 
 
-def generate_integer_weights(n, total=100):
+def generate_integer_weights(n, total=100, min_thresholds=None, max_thresholds=None):
+    min_thresholds = list(min_thresholds)
+    max_thresholds = list(max_thresholds)
+    if min_thresholds is None:
+        min_thresholds = np.zeros(n)
+    if max_thresholds is None:
+        max_thresholds = np.ones(n) * total
+
     weights = np.random.rand(n)
     weights = (weights / weights.sum()) * total
     rounded_weights = np.round(weights).astype(int)
@@ -20,11 +27,13 @@ def generate_integer_weights(n, total=100):
     for i in range(abs(difference)):
         index = np.random.randint(0, n)
         if difference > 0:
-            rounded_weights[index] += 1
+            if rounded_weights[index] < max_thresholds[index]:
+                rounded_weights[index] += 1
         elif difference < 0:
-            if rounded_weights[index] > 0:
+            if rounded_weights[index] > min_thresholds[index]:
                 rounded_weights[index] -= 1
-    return rounded_weights
+
+    return np.clip(rounded_weights, min_thresholds, max_thresholds).astype(int)
 
 
 def calculate_fitness(weights, etf_config, historical_prices_map):
@@ -54,8 +63,10 @@ def calculate_fitness(weights, etf_config, historical_prices_map):
     return profit
 
 
-def mutate_weights_and_maintain_sum_constraint(weights, total=100):
+def mutate_weights_and_maintain_sum_constraint(weights, min_thresholds, max_thresholds, total=100):
     n = len(weights)
+    min_thresholds = list(min_thresholds)
+    max_thresholds = list(max_thresholds)
     # Choose a random index to mutate
     index = np.random.randint(0, n)
     # Choose a random value to add or subtract
@@ -67,15 +78,17 @@ def mutate_weights_and_maintain_sum_constraint(weights, total=100):
     difference = total - new_weights.sum()
     if difference != 0:
         new_weights[index] += difference
-    return new_weights
+
+    return np.clip(new_weights, min_thresholds, max_thresholds).astype(int)
 
 
-def maximize_etf_function(etf_config: dict, historical_prices_map: dict):
+def maximize_etf_function(etf_config: dict, historical_prices_map: dict, min_thresholds: dict, max_thresholds: dict):
     n_iters = 500
     generations = 500
     fitness_values = []
     n = len(list(etf_config.values()))
-    weights = generate_integer_weights(n)
+    weights = generate_integer_weights(n, min_thresholds=min_thresholds.values(),
+                                       max_thresholds=max_thresholds.values())
     print(weights)
     print("Sum of weights:", weights.sum())
     best_weights = weights.copy()
@@ -83,13 +96,14 @@ def maximize_etf_function(etf_config: dict, historical_prices_map: dict):
         print(f"Iteration {i + 1}")
 
         if calculate_fitness(weights, etf_config, historical_prices_map) > calculate_fitness(
-            best_weights, etf_config, historical_prices_map
+                best_weights, etf_config, historical_prices_map
         ):
             best_weights = weights.copy()
 
         if i % 20 == 0:
             # mutate weights and maintain sum constraint
-            weights = mutate_weights_and_maintain_sum_constraint(weights)
+            weights = mutate_weights_and_maintain_sum_constraint(weights, min_thresholds.values(),
+                                                                 max_thresholds.values())
 
         for j in range(generations):
             print(f"Generation {j + 1}")
@@ -99,7 +113,8 @@ def maximize_etf_function(etf_config: dict, historical_prices_map: dict):
             print("Fitness:", fitness)
 
             # Generate a new solution
-            new_weights = generate_integer_weights(n)
+            new_weights = generate_integer_weights(n, min_thresholds=min_thresholds.values(),
+                                                   max_thresholds=max_thresholds.values())
             new_fitness = calculate_fitness(new_weights, etf_config, historical_prices_map)
 
             # Compare the fitness of the new solution with the current solution
@@ -128,8 +143,6 @@ def maximize_etf_function(etf_config: dict, historical_prices_map: dict):
     plt.xlabel("Iteration")
     plt.ylabel("Fitness Value")
     plt.show()
-
-
 
 
 def login_robinhood():
@@ -199,6 +212,32 @@ def main():
         "AAPL": 5  # Apple Inc. - Allocating 5% of the ETF
     }
 
+    min_thresholds = {
+        "MSFT": 20,
+        "NVDA": 20,
+        "META": 2,
+        "AMZN": 2,
+        "QCOM": 2,
+        "GOOG": 2,
+        "GOOGL": 2,
+        "AVGO": 2,
+        "COST": 2,
+        "AAPL": 2
+    }
+
+    max_thresholds = {
+        "MSFT": 35,
+        "NVDA": 30,
+        "META": 10,
+        "AMZN": 10,
+        "QCOM": 10,
+        "GOOG": 10,
+        "GOOGL": 10,
+        "AVGO": 10,
+        "COST": 10,
+        "AAPL": 10
+    }
+
     total_investment = 200  # Total amount to invest
     etf_prices = None
     investment_values = np.zeros(
@@ -241,7 +280,7 @@ def main():
 
     # logging.info(f"Total invested: ${total_investment}")
 
-    maximize_etf_function(etf_config, historical_prices_map)
+    maximize_etf_function(etf_config, historical_prices_map, min_thresholds, max_thresholds)
 
 
 if __name__ == "__main__":
