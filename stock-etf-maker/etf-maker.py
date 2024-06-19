@@ -111,7 +111,7 @@ def maximize_etf_function(etf_config: dict, historical_prices_map: dict, min_thr
         ):
             best_weights = weights.copy()
 
-        if i % 20 == 0:
+        if i % 25 == 0:
             # mutate weights and maintain sum constraint
             weights = mutate_weights_and_maintain_sum_constraint(weights, min_thresholds.values(),
                                                                  max_thresholds.values())
