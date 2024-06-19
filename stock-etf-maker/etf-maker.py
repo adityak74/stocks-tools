@@ -1,3 +1,5 @@
+import sys
+
 import robin_stocks.robinhood as rh
 from dotenv import dotenv_values
 import logging
@@ -8,6 +10,16 @@ from functools import lru_cache
 
 logging.basicConfig(level=logging.INFO)
 cfg = dotenv_values(".env")
+
+
+DEBUG = False
+
+
+def print_log(*args, **kwargs):
+    if DEBUG or kwargs.get('should_print', False):
+        # remove should_print from kwargs
+        kwargs.pop("should_print", None)
+        print(*args, **kwargs)
 
 
 def generate_integer_weights(n, total=100, min_thresholds=None, max_thresholds=None):
@@ -89,11 +101,10 @@ def maximize_etf_function(etf_config: dict, historical_prices_map: dict, min_thr
     n = len(list(etf_config.values()))
     weights = generate_integer_weights(n, min_thresholds=min_thresholds.values(),
                                        max_thresholds=max_thresholds.values())
-    print(weights)
-    print("Sum of weights:", weights.sum())
+    print_log("Sum of weights:", weights.sum())
     best_weights = weights.copy()
     for i in range(n_iters):
-        print(f"Iteration {i + 1}")
+        print_log(f"Iteration {i + 1}")
 
         if calculate_fitness(weights, etf_config, historical_prices_map) > calculate_fitness(
                 best_weights, etf_config, historical_prices_map
@@ -106,11 +117,11 @@ def maximize_etf_function(etf_config: dict, historical_prices_map: dict, min_thr
                                                                  max_thresholds.values())
 
         for j in range(generations):
-            print(f"Generation {j + 1}")
+            print_log(f"Generation {j + 1}")
             # Calculate the fitness of the current solution
             fitness = calculate_fitness(weights, etf_config, historical_prices_map)
             fitness_values.append(fitness)
-            print("Fitness:", fitness)
+            print_log("Fitness:", fitness)
 
             # Generate a new solution
             new_weights = generate_integer_weights(n, min_thresholds=min_thresholds.values(),
@@ -120,19 +131,19 @@ def maximize_etf_function(etf_config: dict, historical_prices_map: dict, min_thr
             # Compare the fitness of the new solution with the current solution
             if new_fitness > fitness:
                 weights = new_weights
-                print("New weights accepted")
+                print_log("New weights accepted")
             else:
-                print("New weights rejected")
+                print_log("New weights rejected")
 
-        print("Final weights:", weights)
+        print_log("Final weights:", weights)
 
     # print optimized etf config
     optimized_etf_config = {symbol: weight for symbol, weight in zip(etf_config.keys(), best_weights)}
-    print("Optimized ETF Config:", optimized_etf_config)
+    print_log("Optimized ETF Config:", optimized_etf_config, should_print=True)
 
-    # Optimized Profit
+    # Optimized ETF Price
     optimized_profit = calculate_fitness(best_weights, etf_config, historical_prices_map)
-    print("Optimized Profit:", optimized_profit)
+    print_log("Optimized ETF Price:", optimized_profit, should_print=True)
 
     # plot the fitness values across iterations
     # x axis is iteration number
@@ -153,7 +164,7 @@ def login_robinhood():
 
 @lru_cache(maxsize=128)
 def get_stock_price(symbol):
-    print(f"Fetching historical prices for {symbol}")
+    print_log(f"Fetching historical prices for {symbol}")
     historical_prices = rh.stocks.get_stock_historicals(
         symbol, span="3month", bounds="regular"
     )
@@ -213,8 +224,8 @@ def main():
     }
 
     min_thresholds = {
-        "MSFT": 20,
-        "NVDA": 20,
+        "MSFT": 10,
+        "NVDA": 30,
         "META": 2,
         "AMZN": 2,
         "QCOM": 2,
@@ -226,8 +237,8 @@ def main():
     }
 
     max_thresholds = {
-        "MSFT": 35,
-        "NVDA": 30,
+        "MSFT": 30,
+        "NVDA": 50,
         "META": 10,
         "AMZN": 10,
         "QCOM": 10,
@@ -272,9 +283,9 @@ def main():
 
     profit = investment_values[-1] - total_investment
 
-    print(f"Total investment: ${total_investment}")
+    print_log(f"Total investment: ${total_investment}", should_print=True)
 
-    print(f"Total profit: ${profit:.2f}")
+    print_log(f"Total profit: ${profit:.2f}", should_print=True)
 
     # plot_etf_prices(etf_prices, investment_values)
 
