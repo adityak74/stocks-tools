@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "stocks-tools"
+version = "0.1.0"
+description = ""
+authors = ["Aditya Karnam <akarnam37@gmail.com>"]
+readme = "README.md"
+packages = [{include = "stocks_tools"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
