@@ -1,6 +1,6 @@
 """Robinhood client"""
 import robin_stocks.robinhood as rh
-from stock_tools.utils.config import Config
+from stocks_tools.utils.config import Config
 
 
 class RobinhoodClient:

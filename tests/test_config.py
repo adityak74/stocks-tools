@@ -1,4 +1,4 @@
-from stock_tools.utils.config import Config
+from stocks_tools.utils.config import Config
 
 
 def test_config():

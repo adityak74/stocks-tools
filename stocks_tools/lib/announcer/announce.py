@@ -1,5 +1,5 @@
 import os
-from stock_tools.lib.robinhood_client.rh import RobinhoodClient
+from stocks_tools.lib.robinhood_client.rh import RobinhoodClient
 from dotenv import dotenv_values
 import logging
 
@@ -12,6 +12,7 @@ class Announcer:
 
     def __init__(self):
         self.rh_client = RobinhoodClient()
+        self.rh_client.login()
 
     def get_stock_price_formatted(self, stock_symbol):
         stock_price = self.rh_client.get_price_for_symbol(stock_symbol)
