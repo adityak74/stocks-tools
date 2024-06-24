@@ -1,4 +1,5 @@
 import os
+from sys import platform
 from stocks_tools.lib.robinhood_client.rh import RobinhoodClient
 from dotenv import dotenv_values
 import logging
@@ -11,6 +12,9 @@ class Announcer:
     """Announcer class"""
 
     def __init__(self):
+        # if not Mac OSX throw error
+        if platform not in ["darwin"]:
+            raise ValueError("Announcer works only on macOS")
         self.rh_client = RobinhoodClient()
         self.rh_client.login()
 
