@@ -1,7 +1,10 @@
 """ETF Maker"""
+
 import logging
+
 import yfinance as yf
 from typing import List
+
 
 class ETF:
     """ETF Class"""
@@ -18,11 +21,9 @@ class ETF:
             raise ValueError("Invalid symbol")
         if not (isinstance(percent, int | float) and percent > 0):
             raise ValueError("Invalid percent value")
-        self.symbol_percents.append({
-            "symbol": symbol,
-            "percent": percent,
-            "ticker": yf.Ticker(symbol)
-        })
+        self.symbol_percents.append(
+            {"symbol": symbol, "percent": percent, "ticker": yf.Ticker(symbol)}
+        )
         self.total_percentage += percent
 
     def get_symbol_percents(self):
