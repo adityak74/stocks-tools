@@ -39,7 +39,7 @@ def generate_integer_weights(n, total=100, min_thresholds=None, max_thresholds=N
 
 
 def calculate_fitness(weights, etf_config, historical_prices_map):
-    total_investment = 1000
+    total_investment = 100
     etf_prices = np.zeros(len(list(historical_prices_map.values())[0]))
     investment_values = np.zeros_like(etf_prices)
 
@@ -69,8 +69,8 @@ def mutate_weights_and_maintain_sum_constraint(weights, min_thresholds, max_thre
 
 
 def maximize_etf_function(etf_config, historical_prices_map, min_thresholds, max_thresholds):
-    n_iters = 500
-    generations = 500
+    n_iters = 5000
+    generations = 1000
     fitness_values = []
     n = len(etf_config)
     weights = generate_integer_weights(n, min_thresholds=min_thresholds.values(),
@@ -98,7 +98,7 @@ def maximize_etf_function(etf_config, historical_prices_map, min_thresholds, max
             if new_fitness > fitness:
                 weights = new_weights
 
-    optimized_etf_config = {symbol: weight for symbol, weight in zip(etf_config.keys(), best_weights)}
+    optimized_etf_config = {symbol: float(weight) for symbol, weight in zip(etf_config.keys(), best_weights)}
     print_log("Optimized ETF Config:", optimized_etf_config, should_print=True)
     optimized_profit = calculate_fitness(best_weights, etf_config, historical_prices_map)
     print_log("Optimized ETF Price:", optimized_profit, should_print=True)
@@ -118,7 +118,7 @@ def login_robinhood():
 @lru_cache(maxsize=128)
 def get_stock_price(symbol):
     print_log(f"Fetching historical prices for {symbol}")
-    return rh.stocks.get_stock_historicals(symbol, span="3month", bounds="regular")
+    return rh.stocks.get_stock_historicals(symbol, interval="day", span="year")
 
 
 def extract_close_prices(historical_prices):
@@ -164,14 +164,14 @@ def main():
 
     min_thresholds = {
         "MSFT": 10,
-        "NVDA": 30,
-        "META": 2,
+        "NVDA": 20,
+        "META": 5,
         "AMZN": 2,
-        "QCOM": 2,
+        "QCOM": 0,
         "GOOG": 2,
-        "GOOGL": 2,
-        "AVGO": 2,
-        "COST": 2,
+        "GOOGL": 0,
+        "AVGO": 0,
+        "COST": 0,
         "AAPL": 2
     }
 
@@ -188,7 +188,7 @@ def main():
         "AAPL": 10
     }
 
-    total_investment = 200
+    total_investment = 100
     etf_prices = None
     investment_values = np.zeros(len(get_stock_price("AAPL")))
     historical_prices_map = {}
