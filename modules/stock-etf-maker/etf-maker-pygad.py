@@ -182,10 +182,10 @@ def main():
             ga_instance.population[i] = ga_instance.population[i] / np.sum(ga_instance.population[i]) * 100
 
     ga_instance = pygad.GA(
-        num_generations=30,
+        num_generations=1000,
         num_parents_mating=1000,
         fitness_func=fitness_func,
-        sol_per_pop=2500,
+        sol_per_pop=5000,
         num_genes=len(etf_config),
         on_generation=on_generation,
         on_start=on_start,
@@ -193,9 +193,9 @@ def main():
         parent_selection_type="sss",
         crossover_type="single_point",
         mutation_type="random",
-        mutation_percent_genes=5,
+        mutation_percent_genes=50,
         mutation_by_replacement=True,
-        keep_elitism=250,
+        keep_elitism=50,
     )
 
     ga_instance.run()
