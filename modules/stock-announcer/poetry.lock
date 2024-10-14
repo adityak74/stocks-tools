@@ -310,14 +310,14 @@ use-chardet-on-py3 = ["chardet (>=3.0.2,<6)"]
 
 [[package]]
 name = "robin-stocks"
-version = "3.1.0"
+version = "3.2.1"
 description = "A Python wrapper around the Robinhood API"
 category = "main"
 optional = false
 python-versions = ">=3.9"
 files = [
-    {file = "robin_stocks-3.1.0-py3-none-any.whl", hash = "sha256:bd675165313c7c6e0aa8b35f2a3bc38e9c10f8bce514712f9ff412facf2597b5"},
-    {file = "robin_stocks-3.1.0.tar.gz", hash = "sha256:c1adda799e79772d40dff8a79ec53e9911d719e83965bfab4270281d1258b7ba"},
+    {file = "robin_stocks-3.2.1-py3-none-any.whl", hash = "sha256:9c4a812d43f9abc878c841bb28edde4cd13998e216ae859b4390594943d4a6e7"},
+    {file = "robin_stocks-3.2.1.tar.gz", hash = "sha256:ca6376908a18d9ad2f815ea64ea9e997ecf90feb4ce29370d430371ba143b0e1"},
 ]
 
 [package.dependencies]
